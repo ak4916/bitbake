@@ -120,8 +120,17 @@ class ORMWrapper(object):
             vars(self)[dictname] = {}
 
         if not key in vars(self)[dictname].keys():
-            if ( 'path' not in kwargs ) or ( 'path' in kwargs and kwargs.get('path') != '' ):
+            try:
+
+            #if ( 'path' not in kwargs ) or ( 'path' in kwargs and kwargs.get('path') != '' ):
                 vars(self)[dictname][key] = clazz.objects.get(**kwargs)
+            
+            except KeyError as e:
+                logger.debug(1, "ERROR:buildinfohelper:_cached_get: '%s' (%s)(%s)" % (e,key,**kwargs))
+                for obj in clazz.objects.filter(**kwargs):
+                    logger.debug(1, "    FOUND:'%s'" % (obj))
+                vars(self)[dictname][key] = clazz.objects.filter(**kwargs)[0]
+
 
         return vars(self)[dictname][key]
 
