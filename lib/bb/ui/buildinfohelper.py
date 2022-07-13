@@ -131,7 +131,6 @@ class ORMWrapper(object):
                     logger.info(1, "    FOUND:'%s'" % (obj))
                 vars(self)[dictname][key] = clazz.objects.filter(**kwargs).first()
 
-        print vars(self)[dictname][key]
 
         return vars(self)[dictname][key]
 
