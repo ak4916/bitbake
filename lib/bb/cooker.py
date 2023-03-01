@@ -426,8 +426,10 @@ class BBCooker:
         for mc in self.multiconfigs:
             self.recipecaches[mc] = bb.cache.CacheData(self.caches_array)
 
-        self.handleCollections(self.data.getVar("BBFILE_COLLECTIONS"))
-
+        self.bbfile_config_priorities = []
+        for mc in self.databuilder.mcdata:
+            self.handleCollections(self.databuilder.mcdata[mc].getVar("BBFILE_COLLECTIONS"), mc)
+ 
         self.parsecache_valid = False
 
     def updateConfigOpts(self, options, environment, cmdline):
@@ -1111,10 +1113,9 @@ class BBCooker:
             shell.start( self )
 
 
-    def handleCollections(self, collections):
+    def handleCollections(self, collections, mc):
         """Handle collections"""
         errors = False
-        self.bbfile_config_priorities = []
         if collections:
             collection_priorities = {}
             collection_depends = {}
@@ -1123,8 +1124,8 @@ class BBCooker:
             for c in collection_list:
                 bb.debug(1,'Processing %s in collection list' % (c))
 
-                # Get collection priority if defined explicitly
-                priority = self.data.getVar("BBFILE_PRIORITY_%s" % c)
+                # Get collection priority if defined explicitly 
+                priority = self.databuilder.mcdata[mc].getVar("BBFILE_PRIORITY_%s" % c)
                 if priority:
                     try:
                         prio = int(priority)
@@ -1138,7 +1139,7 @@ class BBCooker:
                     collection_priorities[c] = None
 
                 # Check dependencies and store information for priority calculation
-                deps = self.data.getVar("LAYERDEPENDS_%s" % c)
+                deps =self.databuilder.mcdata[mc].getVar("LAYERDEPENDS_%s" % c)
                 if deps:
                     try:
                         depDict = bb.utils.explode_dep_versions2(deps)
@@ -1212,7 +1213,7 @@ class BBCooker:
             # Calculate all layer priorities using calc_layer_priority and store in bbfile_config_priorities
             for c in collection_list:
                 calc_layer_priority(c)
-                regex = self.data.getVar("BBFILE_PATTERN_%s" % c)
+                regex = self.databuilder.mcdata[mc].getVar("BBFILE_PATTERN_%s" % c)
                 if regex is None:
                     parselog.error("BBFILE_PATTERN_%s not defined" % c)
                     errors = True
