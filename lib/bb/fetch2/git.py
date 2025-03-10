@@ -363,6 +363,7 @@ class Git(FetchMethod):
                 output = runfetchcmd(cmd_nobranch, d, quiet=True, workdir=wd)
                 if output.split()[0] != "0":
                     ud.nobranch = True
+                    ud.branches[name] = "main"
         except bb.fetch2.FetchError:
             return False
         if len(output.split()) > 1:
