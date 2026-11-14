@@ -467,8 +467,9 @@ You can also remove the BB_HASHSERVE_UPSTREAM setting, but this may result in si
         if not self.eventlog or self.eventlog[0] != eventlog:
             # we log all events to a file if so directed
             # register the log file writer as UI Handler
-            if not os.path.exists(os.path.dirname(eventlog)):
-                bb.utils.mkdirhier(os.path.dirname(eventlog))
+            dirname = os.path.dirname(eventlog)
+            if dirname and not os.path.exists(dirname):
+                bb.utils.mkdirhier(dirname)
             writer = EventWriter(self, eventlog)
             EventLogWriteHandler = namedtuple('EventLogWriteHandler', ['event'])
             self.eventlog = (eventlog, bb.event.register_UIHhandler(EventLogWriteHandler(writer)), writer)

@@ -409,3 +409,21 @@ addtask marker
             with open(os.path.join(builddir, "marker.log")) as f:
                 self.assertEqual(f.read(), "bbappend-applied",
                                  "bitbake -b did not apply the recipe's bbappend")
+
+
+class EventLogTest(_BitbakeSubprocessTestCase):
+    """Tests for the event log ("bitbake -w")."""
+
+    _parsetests = os.path.realpath(os.path.join(os.path.dirname(__file__), "parse-tests"))
+
+    def test_write_log_bare_filename(self):
+        """bitbake -w must accept a file name without a directory."""
+        with self._build_dir(prefix="eventlogtest") as builddir:
+            env = os.environ.copy()
+            env["BBPATH"] = self._parsetests
+            env["BB_ENV_PASSTHROUGH_ADDITIONS"] = "TOPDIR"
+            env["TOPDIR"] = builddir
+
+            self._run_subprocess(["bitbake", "-w", "events.json", "-e"], env, builddir)
+
+            self.assertTrue(os.path.exists(os.path.join(builddir, "events.json")))
