@@ -2109,7 +2109,10 @@ class RunQueueExecute:
                 logger.debug("Marking task %s as buildable", revdep)
 
         found = None
-        for t in sorted(self.sq_deferred.copy()):
+        for mc in sorted(self.sqdata.multiconfigs):
+          for t in sorted(self.sq_deferred.copy()):
+            if mc_from_tid(t) != mc:
+                continue
             if self.sq_deferred[t] == task:
                 # Allow the next deferred task to run. Any other deferred tasks should be deferred after that task.
                 # We shouldn't allow all to run at once as it is prone to races.
